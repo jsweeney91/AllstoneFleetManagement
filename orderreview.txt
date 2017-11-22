@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <link rel="stylesheet" href="styles/style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ 
+   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCuWekAKS0rPX1_xR1mbzKz8N3UJMJdjB0"></script>
+
+ 
+
+	<style>
+	 html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map-canvas {
+      height: 500px;
+      width: 100%;
+    
+    }
+	</style>
+
+</head>
+	<body>	
+		<div class="container">
+		<div id="map-canvas"></div>
+			<script>
+	function initMap() {
+		<?php
+			$servername = "localhost";
+			$username = "jsweeney91";
+			$password = "Treehugger123!";
+			$dbname = "allstone";
+
+			// Create connection
+			$conn = new mysqli($servername, $username, $password, $dbname);
+			// Check connection
+			$sql = "SELECT coordinates from site where contract_id = ".$_GET['ID']." and collection_flag=0";							
+			$result = $conn->query($sql);
+			if ($result->num_rows > 0) {
+				while($row = $result->fetch_assoc()) {
+					echo "var pointA = new google.maps.LatLng".$row["coordinates"].",";					
+				}
+			}		
+			$sql = "SELECT coordinates from site where contract_id = ".$_GET['ID']." and collection_flag=1";							
+			$result = $conn->query($sql);
+			if ($result->num_rows > 0) {
+				while($row = $result->fetch_assoc()) {
+					echo "pointB = new google.maps.LatLng".$row["coordinates"].",";					
+				}
+			}						
+		?>
+		myOptions = {
+		  zoom: 7,
+		  center: pointA
+		},
+		map = new google.maps.Map(document.getElementById('map-canvas'), myOptions),
+		// Instantiate a directions service.
+		directionsService = new google.maps.DirectionsService,
+		directionsDisplay = new google.maps.DirectionsRenderer({
+		  map: map
+		}),
+		markerA = new google.maps.Marker({
+		  position: pointA,
+		  title: "point A",
+		  label: "A",
+		  map: map
+		}),
+		markerB = new google.maps.Marker({
+		  position: pointB,
+		  title: "point B",
+		  label: "B",
+		  map: map
+		});
+
+	  // get route from A to B
+	  calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB);
+	
+	}
+
+
+
+	function calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB) {
+	  directionsService.route({
+		origin: pointA,
+		destination: pointB,
+		travelMode: google.maps.TravelMode.DRIVING
+	  }, function(response, status) {
+		if (status == google.maps.DirectionsStatus.OK) {
+		  directionsDisplay.setDirections(response);
+		  document.getElementById('info').innerHTML += "<h2>Journey information(Each way)</h2>";
+		  document.getElementById('info').innerHTML += "<h3>Duration</h3>"+response.routes[0].legs[0].duration.text;
+		  document.getElementById('info').innerHTML += "<h3>Distance</h3>"+response.routes[0].legs[0].distance.text;
+		} else {
+		  window.alert('Directions request failed due to ' + status);
+		}
+	  });
+	}
+
+	initMap();
+	</script>
+	<div id="info">
+		<?php
+			$servername = "localhost";
+			$username = "jsweeney91";
+			$password = "Treehugger123!";
+			$dbname = "allstone";
+
+			// Create connection
+			$conn = new mysqli($servername, $username, $password, $dbname);
+			// Check connection
+			$sql = "SELECT quantity from required_material where contract_code = ".$_GET['ID'];							
+			$result = $conn->query($sql);
+			if ($result->num_rows > 0) {
+				while($row = $result->fetch_assoc()) {
+					echo "<h3>estimated number of journeys:".strval(intval($row["quantity"])/20)."</h3>";			
+				}
+			}		
+		?>
+	</div>
+	<div class="row">
+	<div class="col-sm-5">
+	  <div class="form-group">
+		<label for="sel1">Assign Drivers:</label>
+		<select multiple class="form-control" id="driverselect"> 
+			<?php 
+			$servername = "localhost";
+			$username = "jsweeney91";
+			$password = "Treehugger123!";
+			$dbname = "allstone";
+
+			// Create connection
+			$conn = new mysqli($servername, $username, $password, $dbname);
+			// Check connection
+
+			
+			$sql = "SELECT code,first_name from employee";
+			
+			$result = $conn->query($sql);
+			if ($result->num_rows > 0) {
+				while($row = $result->fetch_assoc()) {
+					echo  "<option value='".$row['code']."'>".$row['first_name']."</option>";
+				}
+			}
+			echo "</select>";
+			echo "</div></div>";
+			echo '<div class="col-sm-5">';
+			echo '<div class="form-group">';
+			echo '<label for="sel1">Assign Drivers:</label>';
+			echo '<select multiple class="form-control" id="driverselect">';
+			$sql = "SELECT code,registration from vehicle where in_service=1 and is_hire=0";
+			
+			$result = $conn->query($sql);
+			if ($result->num_rows > 0) {
+				while($row = $result->fetch_assoc()) {
+					echo  "<option value='".$row['code']."'>".$row['registration']."</option>";
+				}
+			}
+		
+		?>
+		</select>
+		</div></div>
+	
+	
+	</div>
+	
+	</body>
+</div>

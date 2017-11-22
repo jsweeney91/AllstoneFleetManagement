@@ -1,0 +1,29 @@
+<?php 
+	$servername = "213.171.200.73";
+	$username = "jsweeney91";
+	$password = "Treehugger123!";
+	$dbname = "ScottishPlant";
+
+	// Create connection
+	$conn = new mysqli($servername, $username, $password, $dbname);
+	// Check connection
+
+	if(isset($_GET['ID'])){
+		$ID = $_GET["ID"];
+	}else{
+		$sql = "SELECT max(CODE) from ARTICLE";
+	
+		$result = $conn->query($sql);
+		if ($result->num_rows > 0) {
+			while($row = $result->fetch_assoc()) {
+				$ID = $row["max(CODE)"];
+			}
+		}
+		
+	}
+	
+	$content = "";
+	$headline = "";
+	$sql = "SELECT CODE,HEADING from ARTICLE where CODE != " . $ID ." order by CODE desc LIMIT 4";
+	$result = $conn->query($sql);
+	?>
