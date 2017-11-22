@@ -24,7 +24,7 @@
 				
 				$servername = "localhost";
 				$username = "jsweeney91";
-				$password = "Treehugger123!";
+				$password = "Allstone123!";
 				$dbname = "allstone";
 
 				// Create connection
